@@ -60,6 +60,6 @@ public class Patient {
             filtered.add(record);
         }
     }
-        return new ArrayList<>();
+        return filtered;
     }
 }
