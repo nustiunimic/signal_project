@@ -1,4 +1,9 @@
 package com.cardio_generator.outputs;
+ 
+/*
+ * _ normally needs to be changed but the package is across more
+ * than the 2 files needed to correct. 
+ * */
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -20,22 +25,29 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class FileOutputStrategy implements OutputStrategy {
 
-    /** Base directory path where the output files will be stored. */
-    private String BaseDirectory;
+    /* Base directory path where the output files will be stored. */
 
+    /* changed the basedDirectory , as variables should be lowerCamelCase. */
+
+    private String baseDirectory; 
     /** A thread-safe map that associates each label with its corresponding output file path. */
-    public final ConcurrentHashMap<String, String> file_map = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, String> fileMap = new ConcurrentHashMap<>();
+   
+    /*changed public to private final and due to the encapsulation principle
+     * and file_map to fileMap for the lowerCamelCase */
 
     /**
      * Constructs a FileOutputStrategy with a specified output directory.
      * 
      * @param baseDirectory The directory where data files will be written; must be a valid file system path
      */
-    public FileOutputStrategy(String baseDirectory) {
+    
+    public FileOutputStrategy(String baseDirectory) { //methods should be lowerCamelCase
 
-        this.BaseDirectory = baseDirectory;
-    }
+        this.baseDirectory = baseDirectory; }
 
+        /* Changed again the variable to lowerCamelCase. */
+    
     /**
      * Outputs patient data to a file corresponding to the data label.
      * Creates the base directory if it does not exist.
@@ -48,23 +60,33 @@ public class FileOutputStrategy implements OutputStrategy {
      */
 
     @Override
-    public void output(int patientId, long timestamp, String label, String data) {
+    public void output(int patientId, long timestamp, String label, String data) { //timestamp should be lowerCamelCase
         try {
             // Create the directory
-            Files.createDirectories(Paths.get(BaseDirectory));
+            Files.createDirectories(Paths.get(baseDirectory));
         } catch (IOException e) {
             System.err.println("Error creating base directory: " + e.getMessage());
             return;
         }
+
+
         // Set the FilePath variable
-        String FilePath = file_map.computeIfAbsent(label, k -> Paths.get(BaseDirectory, label + ".txt").toString());
+        String filePath = fileMap.computeIfAbsent(label, k -> Paths.get(baseDirectory, label + ".txt").toString());
+        /*changed FilePath and file_map by the lowerCamelCase declaration problem 
+         * added spacing for better reading. */
 
         // Write the data to the file
+
+        //changed the Path file into lowerCamelCase
+        
         try (PrintWriter out = new PrintWriter(
-                Files.newBufferedWriter(Paths.get(FilePath), StandardOpenOption.CREATE, StandardOpenOption.APPEND))) {
+                Files.newBufferedWriter(Paths.get(filePath), StandardOpenOption.CREATE, StandardOpenOption.APPEND))) {
             out.printf("Patient ID: %d, Timestamp: %d, Label: %s, Data: %s%n", patientId, timestamp, label, data);
-        } catch (Exception e) {
-            System.err.println("Error writing to file " + FilePath + ": " + e.getMessage());
+        } catch (IOException e) {
+            System.err.println("Error writing to file " + filePath + ": " + e.getMessage());
         }
+
+        /* catch IO type of exception for more precision
+         *changed the FilePath into lowerCamelCase. */
     }
 }

@@ -1,7 +1,9 @@
 package com.alerts;
 
-import com.data_management.DataStorage;
+import com.data_management.DataStorage; 
 import com.data_management.Patient;
+
+/* packets generally should not use _ but it gives error otherwise */
 
 /**
  * The {@code AlertGenerator} class is responsible for monitoring patient data
@@ -10,16 +12,19 @@ import com.data_management.Patient;
  * it against specific health criteria.
  */
 public class AlertGenerator {
-    private DataStorage dataStorage;
+    private final DataStorage dataStorage;
+    /* datastorage should be final */
 
     /**
      * Constructs an {@code AlertGenerator} with a specified {@code DataStorage}.
      * The {@code DataStorage} is used to retrieve patient data that this class
      * will monitor and evaluate.
      *
-     * @param dataStorage the data storage system that provides access to patient
-     *                    data
+     * @param dataStorage the data storage system that provides access to patient data
      */
+    
+     /* improved spacing for better reading  */
+
     public AlertGenerator(DataStorage dataStorage) {
         this.dataStorage = dataStorage;
     }
@@ -29,8 +34,7 @@ public class AlertGenerator {
      * are met. If a condition is met, an alert is triggered via the
      * {@link #triggerAlert}
      * method. This method should define the specific conditions under which an
-     * alert
-     * will be triggered.
+     * alert will be triggered. //improved spacing
      *
      * @param patient the patient data to evaluate for alert conditions
      */
