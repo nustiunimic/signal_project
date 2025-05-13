@@ -64,6 +64,19 @@ java -jar target/cardio_generator-1.0-SNAPSHOT.jar --patient-count 100 --output 
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
+## UML Models
+
+This project includes UML class diagrams for each major subsystem of the CHMS (Connected Healthcare Monitoring System). These diagrams represent the design structure, class responsibilities, and relationships between key components.
+
+The following subsystems are modeled:
+- Alert Generation System
+- Data Storage System
+- Patient Identification System
+- Data Access Layer
+
+You can find all the UML diagrams along with their design explanations in the file:  [ UMLDiagrams.pdf](./src/main/uml_diagrams/UMLDiagrams.pdf)
+
+
 ## Project Members
 -Student ID : 6395305
 -Student ID : 6406552
