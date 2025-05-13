@@ -20,8 +20,7 @@ public interface PatientDataGenerator {
      * Generates simulated health data for a specific patient and sends it to 
      * the provided output strategy.
      * 
-     * @param patientId The ID of the patient to generate data for; must be a
-     * positive integer
+     * @param patientId The ID of the patient to generate data for; must be a positive integer
      * @param outputStrategy The output strategy to use for sending the generated data
      */
     void generate(int patientId, OutputStrategy outputStrategy);
