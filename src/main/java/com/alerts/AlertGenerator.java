@@ -1,5 +1,6 @@
 package com.alerts;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.data_management.DataStorage; 
@@ -66,10 +67,19 @@ public class AlertGenerator {
         /** Get all patient records from the last hour */
         List<PatientRecord> recentRecords = patient.getRecords(lastHour, now);
 
+        List<Double> systolicBP = new ArrayList<>();
+        List<Double> diastolicBP = new ArrayList<>();
+        List<Double> ecgValues = new ArrayList<>();
+
+        PatientRecord previousOxygen = null;
+        boolean lowBP = false;
+        boolean lowOxygen = false;
+
         /** Iterated through the records to check conditions. */
         for (PatientRecord record : recentRecords) {
             String type = record.getRecordType();
             double value = record.getMeasurementValue();
+            long timestamp = record.getTimestamp();
 
             /** Checks for high heart rate condition */
 
@@ -82,17 +92,59 @@ public class AlertGenerator {
             }
 
             /** Checks for low oxygen level */
-            if (type.equals("OxygenLevel") && value < 90) {
-                triggerAlert(new Alert(
-                    String.valueOf(patient.getPatientId()), 
-                    "Low Oxygen Level: " + value + "%", 
-                    record.getTimestamp()
-                ));
+            if (type.equals("OxygenLevel")) {
+                if (value < 90) {
+                    triggerAlert(new Alert(String.valueOf(patient.getPatientId()),
+                     "Low Oxygen Level: " + value + "%", timestamp));
+                }
+                if (value < 92) {
+                    lowOxygen = true;
+                }
+
+                if (previousOxygen != null && timestamp - previousOxygen.getTimestamp() <= 10 * 60 * 1000) {
+                    double drop = previousOxygen.getMeasurementValue() - value;
+                    if (drop >= 5) {
+                        triggerAlert(new Alert(String.valueOf(patient.getPatientId()),
+                         "Rapid Oxygen Drop: -" + drop + "%", timestamp));
+                    }
+                }
+                previousOxygen = record;
             }
 
             // More conditions can be added here (e.g., blood pressure, temperature)
+            if (type.equals("SystolicBloodPressure")){
+                systolicBP.add(value);
+                if(value > 180 || value <90){
+                    triggerAlert(new Alert(String.valueOf(patient.getPatientId()), "Critical Systolic BP: " + value + "mmHg", timestamp));
+                }
+                if(value < 90) lowBP = true;
+            }
+            if(type.equals("DiastolicBloodPressure")){
+                diastolicBP.add(value);
+                if(value > 120 || value < 60){
+                    triggerAlert(new Alert(String.valueOf(patient.getPatientId()), "Critical Diastolic BP : " + value + "mmHg", timestamp));
+                }
+            }
+            if(type.equalsIgnoreCase("TriggeredAlert") && value == 1.0){
+                triggerAlert(new Alert(String.valueOf(patient.getPatientId()), "Manual Triggered Alert", timestamp));
+            }
+            if( type.equals("ECG")){
+                ecgValues.add(value);
+            }
         }
-        
+        checkTrend(systolicBP, patient.getPatientId(), "Systolic Blood Pressure");
+        checkTrend(diastolicBP, patient.getPatientId(), "Diastolic Blood Pressure");
+   
+        if (lowBP && lowOxygen) {
+            triggerAlert(new Alert(String.valueOf(patient.getPatientId()), "Hypotensive Hypoxemia Alert", now));
+        }
+       if (!ecgValues.isEmpty()) {
+            double avg = ecgValues.stream().mapToDouble(Double::doubleValue).average().orElse(0);
+            for (double val : ecgValues) {
+                if (Math.abs(val - avg) > avg * 0.5) { // 50% deviation
+                    triggerAlert(new Alert(String.valueOf(patient.getPatientId()), "Abnormal ECG Activity Detected", now));
+                    break;
+                } }}
     }
 
     /**
@@ -105,5 +157,27 @@ public class AlertGenerator {
      */
     private void triggerAlert(Alert alert) {
         // Implementation might involve logging the alert or notifying staff
+        System.out.println("Alert for Patient" + alert.getPatientId() + ":" + alert.getCondition() + "at" + alert.getTimestamp());
+    }
+    /**
+     * Checks for trend alerts (3 consecutive increases or decreases by >10 mmHg).
+     *
+     * @param values list of blood pressure values
+     * @param patientId ID of the patient
+     * @param label type of pressure (systolic or diastolic)
+     */
+    private void checkTrend(List<Double> values, int patientId, String label) {
+        if (values.size() < 3) return;
+
+        for (int i = 0; i < values.size() - 2; i++) {
+            double a = values.get(i);
+            double b = values.get(i + 1);
+            double c = values.get(i + 2);
+
+            if ((b - a > 10 && c - b > 10) || (a - b > 10 && b - c > 10)) {
+                triggerAlert(new Alert(String.valueOf(patientId), "Trend Alert: " + label, System.currentTimeMillis()));
+                break;
+            }
+        }
     }
 }
