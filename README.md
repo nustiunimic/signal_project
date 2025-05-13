@@ -74,7 +74,8 @@ The following subsystems are modeled:
 - Patient Identification System
 - Data Access Layer
 
-You can find all the UML diagrams along with their design explanations in the file:  [ UMLDiagrams.pdf](./src/main/uml_diagrams/UMLDiagrams.pdf)
+You can find all the UML diagrams along with their design explanations in the file:[ UMLDiagrams.pdf](./src/main/uml%20diagrams/UMLDiagrams.pdf)
+
 
 
 ## Project Members
