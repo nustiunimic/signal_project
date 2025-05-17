@@ -22,10 +22,10 @@ public class FileDataReader implements DataReader {
                 if(parts.length !=4) continue;
 
                 int patientId = Integer.parseInt(parts[0]);
-                long timestamp = Long.parseLong(parts[1]);
+                double value = Double.parseDouble(parts[1]);
                 String type = parts[2];
-                double value = Double.parseDouble(parts[3]);
-
+                long timestamp = Long.parseLong(parts[3]);
+                
                 dataStorage.addPatientData(patientId, value, type, timestamp);
 
             }

@@ -32,6 +32,10 @@ public class AlertGenerator {
     /** The data storage system used to retrieve patient data for evaluation. */
     
     private final DataStorage dataStorage;
+
+        private List<Alert> triggeredAlerts = new ArrayList<>();
+
+
     
     /* datastorage should be final */
 
@@ -65,8 +69,7 @@ public class AlertGenerator {
         long lastHour = now - 60 * 60 * 1000;
 
         /** Get all patient records from the last hour */
-        List<PatientRecord> recentRecords = patient.getRecords(lastHour, now);
-
+        List<PatientRecord> recentRecords =   dataStorage.getRecords(patient.getPatientId(), lastHour, now);
         List<Double> systolicBP = new ArrayList<>();
         List<Double> diastolicBP = new ArrayList<>();
         List<Double> ecgValues = new ArrayList<>();
@@ -155,9 +158,20 @@ public class AlertGenerator {
      *
      * @param alert the alert object containing details about the alert condition
      */
-    private void triggerAlert(Alert alert) {
+    protected void triggerAlert(Alert alert) {
         // Implementation might involve logging the alert or notifying staff
+        triggeredAlerts.add(alert);
         System.out.println("Alert for Patient" + alert.getPatientId() + ":" + alert.getCondition() + "at" + alert.getTimestamp());
+    }
+
+     
+    /**
+     * Retrieves the list of triggered alerts.
+     *
+     * @return a list of triggered alerts
+     */
+    public List<Alert> getTriggeredAlerts() {
+        return triggeredAlerts;
     }
     /**
      * Checks for trend alerts (3 consecutive increases or decreases by >10 mmHg).
