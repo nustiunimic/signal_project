@@ -5,7 +5,7 @@ import com.alerts.BloodPressureStrategy;
 import com.alerts.HeartRateStrategy;
 import com.alerts.OxygenSaturationStrategy;
 import com.alerts.AlertGenerator;
-
+import com.data_management.DataStorage;
 
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
@@ -78,7 +78,7 @@ public class AlertStrategyTest {
     @Test
     void testChangingStrategy() {
         // we test the change of the strategy
-        AlertGenerator alertGenerator = new AlertGenerator(new TestDataStorage());
+        AlertGenerator alertGenerator = new AlertGenerator(DataStorage.getInstance());
         
         // check that the initial strategy has the 90 threshold
         AlertStrategy initialStrategy = new BloodPressureStrategy(90, 180, "Systolic");
@@ -92,11 +92,6 @@ public class AlertStrategyTest {
         assertFalse(newStrategy.checkAlert("123", 85, 0), "New strategy should not detect BP of 85");
     }
     
-    // helper class
-    private static class TestDataStorage extends com.data_management.DataStorage {
-        @Override
-        public java.util.List<com.data_management.PatientRecord> getRecords(int patientId, long startTime, long endTime) {
-            return new java.util.ArrayList<>();
-        }
+
     }
-}
+

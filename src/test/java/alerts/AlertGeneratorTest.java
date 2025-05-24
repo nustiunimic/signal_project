@@ -14,13 +14,14 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class AlertGeneratorTest {
-    private InMemoryDataStorage dataStorage;
+    private DataStorage dataStorage;
     private AlertGenerator alertGenerator;
     private long now;
 
     @BeforeEach
     void setUp() {
-        dataStorage    = new InMemoryDataStorage();
+        dataStorage    = DataStorage.getInstance();
+        dataStorage.clearAllData();
         alertGenerator = new AlertGenerator(dataStorage);
         now            = System.currentTimeMillis();
     }
@@ -126,30 +127,7 @@ class AlertGeneratorTest {
 
     // In‑memory DataStorage for testing, holds raw PatientRecord entries
  
-    static class InMemoryDataStorage extends DataStorage {
-        private final List<PatientRecord> records = new ArrayList<>();
-
-        public void addPatientData(int patientId,
-                                   double measurementValue,
-                                   String recordType,
-                                   long timestamp) {
-            records.add(new PatientRecord(
-                patientId, measurementValue, recordType, timestamp));
-        }
-
-        @Override
-        public List<PatientRecord> getRecords(int patientId,
-                                              long startTime,
-                                              long endTime) {
-            List<PatientRecord> result = new ArrayList<>();
-            for (PatientRecord r : records) {
-                if (r.getPatientId() == patientId
-                 && r.getTimestamp()  >= startTime
-                 && r.getTimestamp()  <= endTime) {
-                    result.add(r);
-                }
-            }
-            return result;
-        }
+    
+        
     }
-}
+

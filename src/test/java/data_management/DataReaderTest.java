@@ -35,7 +35,8 @@ public class DataReaderTest {
                 "1001,190.0,SystolicBP,1714376120000"
         ));
 
-        dataStorage =new DataStorage();
+        dataStorage = DataStorage.getInstance();
+        dataStorage.clearAllData();
         dataReader =new FileDataReader(tempFilePath.toString());
     }
 
@@ -74,7 +75,8 @@ public class DataReaderTest {
                 "1001,190.0,SystolicBP,1714376120000" // Valid line
         ));
         
-        DataStorage testStorage = new DataStorage();
+        DataStorage testStorage = DataStorage.getInstance();
+        testStorage.clearAllData();
         DataReader invalidReader = new FileDataReader(invalidFile.toString());
         invalidReader.readData(testStorage);
         
@@ -87,7 +89,8 @@ public class DataReaderTest {
         Path emptyFile = tempDir.resolve("empty.txt");
         Files.write(emptyFile, List.of());
         
-        DataStorage testStorage = new DataStorage();
+        DataStorage testStorage = DataStorage.getInstance();
+        testStorage.clearAllData();
         DataReader emptyReader = new FileDataReader(emptyFile.toString());
         emptyReader.readData(testStorage);
         
