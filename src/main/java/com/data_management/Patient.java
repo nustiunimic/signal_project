@@ -67,4 +67,8 @@ public class Patient {
     }
         return filtered;
     }
+
+    public Integer getId() {
+        return this.patientId;
+    }
 }

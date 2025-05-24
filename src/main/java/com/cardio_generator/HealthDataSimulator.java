@@ -133,10 +133,8 @@ public class HealthDataSimulator {
      */
 
     public static void main(String[] args) throws IOException {
-        // ✅ SCHIMBAT: Folosim getInstance() pentru a obține singura instanță
         HealthDataSimulator simulator = HealthDataSimulator.getInstance();
-        
-        // Demonstrăm că este singleton - același obiect
+    
         HealthDataSimulator simulator2 = HealthDataSimulator.getInstance();
         System.out.println("Same instance? " + (simulator == simulator2)); // Should print true
         
@@ -162,7 +160,11 @@ public class HealthDataSimulator {
             switch (args[i]) {
                 case "-h":
                     printHelp();
-                    System.exit(0);
+                    if(!isRunningFromTest()){
+                    System.exit(0);}
+                    else {
+                        throw new IllegalStateException("Help argument detected during test execution.");
+                    }
                     break;
                 case "--patient-count":
                     if (i + 1 < args.length) {
@@ -213,10 +215,19 @@ public class HealthDataSimulator {
                 default:
                     System.err.println("Unknown option '" + args[i] + "'");
                     printHelp();
-                    System.exit(1);
+                    if(!isRunningFromTest()){
+                    System.exit(1);}
+                    else {
+                        throw new IllegalArgumentException("Unknown option: " + args[i]);
+                    }
             }
         }
     }
+    private boolean isRunningFromTest() {
+    return System.getProperty("surefire.test.class.path") != null;
+}
+
+
     /**
      * Displays help instructions for running the simulator.
      */
