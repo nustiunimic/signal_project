@@ -1,7 +1,7 @@
 package com.alerts;
 
 // Represents an alert
-public class Alert {
+public class Alert implements AlertInterface {
     private String patientId;
     private String condition;
     private long timestamp;
@@ -23,4 +23,18 @@ public class Alert {
     public long getTimestamp() {
         return timestamp;
     }
+
+    @Override
+    public void triggerAlert() {
+        // TODO Auto-generated method stub
+        System.out.println("Alert triggered!!");
+        System.out.println("getAlertMessage()");
+        System.out.println("Alert processing completed.");
+    }
+
+    @Override
+    public String getAlertMessage() {
+        // TODO Auto-generated method stub
+        return String.format ("Patient %s: %s (Time: %d)", patientId, condition, timestamp);  
+      }
 }
