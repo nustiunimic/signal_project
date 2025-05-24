@@ -4,10 +4,9 @@ import java.io.IOException;
 
 public interface DataReader {
     /**
-     * Reads data from a specified source and stores it in the data storage.
+     * Starts reading data continuously and updates the data storage in real time.
      * 
-     * @param dataStorage the storage where data will be stored
-     * @throws IOException if there is an error reading the data
+     * @param dataStorage the storage where data will be stored as it is received
      */
-    void readData(DataStorage dataStorage) throws IOException;
+    void startReading(DataStorage dataStorage);
 }
