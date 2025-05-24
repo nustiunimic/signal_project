@@ -13,16 +13,29 @@ import com.alerts.AlertGenerator;
  * patient IDs.
  */
 public class DataStorage {
+    private static DataStorage instance;
+    private static final Object lock = new Object();
     private Map<Integer, Patient> patientMap; // Stores patient objects indexed by their unique patient ID.
 
     /**
      * Constructs a new instance of DataStorage, initializing the underlying storage
      * structure.
      */
-    public DataStorage() {
+    private DataStorage() {
         this.patientMap = new HashMap<>();
+        System.out.println("DataStorage singleton instance created.");
     }
 
+    public static DataStorage getInstance(){
+        if(instance == null){
+            synchronized(lock){
+                if(instance == null){
+                    instance = new DataStorage();
+                }
+            }
+        }
+        return instance;
+    }
     /**
      * Adds or updates patient data in the storage.
      * If the patient does not exist, a new Patient object is created and added to
@@ -75,6 +88,23 @@ public class DataStorage {
         return new ArrayList<>(patientMap.values());
     }
 
+    public int getPatientCount(){
+        return patientMap.size();
+    }
+
+    public boolean hasPatient(int patientId){
+        return patientMap.containsKey(patientId);
+    }
+
+    public Patient getPatient(int patientId){
+        return patientMap.get(patientId);
+    }
+
+    public void clearAllData(){
+        patientMap.clear();
+        System.out.println("All patient data cleared from DataStorage singleton.");
+    }
+
     /**
      * The main method for the DataStorage class.
      * Initializes the system, reads data into storage, and continuously monitors
@@ -85,7 +115,9 @@ public class DataStorage {
     public static void main(String[] args) {
         // DataReader is not defined in this scope, should be initialized appropriately.
         // DataReader reader = new SomeDataReaderImplementation("path/to/data");
-        DataStorage storage = new DataStorage();
+        DataStorage storage = DataStorage.getInstance();
+        DataStorage storage2 = DataStorage.getInstance();
+        System.out.println("Same instance?" + (storage == storage2));
 
         // Assuming the reader has been properly initialized and can read data into the
         // storage

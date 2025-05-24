@@ -34,11 +34,95 @@ import java.util.ArrayList;
  */
 
 public class HealthDataSimulator {
+    private static HealthDataSimulator instance;
+    private static final Object lock = new Object();
 
-    private static int patientCount = 50; // Default number of patients
-    private static ScheduledExecutorService scheduler;
-    private static OutputStrategy outputStrategy = new ConsoleOutputStrategy(); // Default output strategy
-    private static final Random random = new Random();
+    private int patientCount = 50; // Default number of patients
+    private ScheduledExecutorService scheduler;
+    private OutputStrategy outputStrategy = new ConsoleOutputStrategy(); // Default output strategy
+    private final Random random = new Random();
+
+    private boolean isRunning = false;
+    private List<Integer> patientIds;
+
+    private HealthDataSimulator(){
+        System.out.println("HealthDataSimulator singleton instance created.");
+    }
+
+     public static HealthDataSimulator getInstance() {
+        // First check (no synchronization) - for performance
+        if (instance == null) {
+            // Synchronize only when instance is null
+            synchronized (lock) {
+                // Second check (with synchronization) - for thread safety
+                if (instance == null) {
+                    instance = new HealthDataSimulator();
+                }
+            }
+        }
+        return instance;
+    }
+
+    public void startSimulation(String[] args) throws IOException {
+        if (isRunning) {
+            System.out.println("Simulation is already running!");
+            return;
+        }
+
+        parseArguments(args);
+        
+        scheduler = Executors.newScheduledThreadPool(patientCount * 4);
+        patientIds = initializePatientIds(patientCount);
+        Collections.shuffle(patientIds); // Randomize the order of patient IDs
+
+        scheduleTasksForPatients(patientIds);
+        isRunning = true;
+        
+        System.out.println("HealthDataSimulator started with " + patientCount + " patients");
+    }
+
+    public void stopSimulation() {
+        if (scheduler != null && !scheduler.isShutdown()) {
+            scheduler.shutdown();
+            try {
+                if (!scheduler.awaitTermination(5, TimeUnit.SECONDS)) {
+                    scheduler.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                scheduler.shutdownNow();
+                Thread.currentThread().interrupt();
+            }
+        }
+        isRunning = false;
+        System.out.println("HealthDataSimulator stopped");
+    }
+
+    public boolean isSimulationRunning() {
+        return isRunning;
+    }
+    
+    public int getPatientCount() {
+        return patientCount;
+    }
+    
+    public void setPatientCount(int count) {
+        if (!isRunning) {
+            patientCount = count;
+            System.out.println("Patient count set to: " + count);
+        } else {
+            System.out.println("Cannot change patient count while simulation is running!");
+        }
+    }
+
+    public void setOutputStrategy(OutputStrategy strategy) {
+        if (!isRunning) {
+            this.outputStrategy = strategy;
+            System.out.println("Output strategy updated");
+        } else {
+            System.out.println("Cannot change output strategy while simulation is running!");
+        }
+    }
+
 
     /**
      * Main entry point for the simulator application.
@@ -49,15 +133,21 @@ public class HealthDataSimulator {
      */
 
     public static void main(String[] args) throws IOException {
-
-        parseArguments(args);
-
-        scheduler = Executors.newScheduledThreadPool(patientCount * 4);
-
-        List<Integer> patientIds = initializePatientIds(patientCount);
-        Collections.shuffle(patientIds); // Randomize the order of patient IDs
-
-        scheduleTasksForPatients(patientIds);
+        // ✅ SCHIMBAT: Folosim getInstance() pentru a obține singura instanță
+        HealthDataSimulator simulator = HealthDataSimulator.getInstance();
+        
+        // Demonstrăm că este singleton - același obiect
+        HealthDataSimulator simulator2 = HealthDataSimulator.getInstance();
+        System.out.println("Same instance? " + (simulator == simulator2)); // Should print true
+        
+        // Start simulation
+        simulator.startSimulation(args);
+        
+        // Add shutdown hook to gracefully stop simulation
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("\nShutting down simulator...");
+            simulator.stopSimulation();
+        }));
     }
 
     /**
@@ -67,7 +157,7 @@ public class HealthDataSimulator {
      * @throws IOException If creating a directory for file output fails
      */
 
-    private static void parseArguments(String[] args) throws IOException {
+    private void parseArguments(String[] args) throws IOException {
         for (int i = 0; i < args.length; i++) {
             switch (args[i]) {
                 case "-h":
@@ -155,7 +245,7 @@ public class HealthDataSimulator {
      * @return List of patient IDs
      */
 
-    private static List<Integer> initializePatientIds(int patientCount) {
+    private  List<Integer> initializePatientIds(int patientCount) {
         List<Integer> patientIds = new ArrayList<>();
         for (int i = 1; i <= patientCount; i++) {
             patientIds.add(i);
@@ -169,7 +259,7 @@ public class HealthDataSimulator {
      * @param patientIds The list of patient IDs to schedule generators for 
      */
 
-    private static void scheduleTasksForPatients(List<Integer> patientIds) {
+    private void scheduleTasksForPatients(List<Integer> patientIds) {
         ECGDataGenerator ecgDataGenerator = new ECGDataGenerator(patientCount);
         BloodSaturationDataGenerator bloodSaturationDataGenerator = new BloodSaturationDataGenerator(patientCount);
         BloodPressureDataGenerator bloodPressureDataGenerator = new BloodPressureDataGenerator(patientCount);
@@ -191,7 +281,7 @@ public class HealthDataSimulator {
  * @param period The period between successive executions
  * @param timeUnit The time unit of the period
  */
-    private static void scheduleTask(Runnable task, long period, TimeUnit timeUnit) {
+    private void scheduleTask(Runnable task, long period, TimeUnit timeUnit) {
         scheduler.scheduleAtFixedRate(task, random.nextInt(5), period, timeUnit);
     }
 }
