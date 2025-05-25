@@ -42,7 +42,7 @@ public class DataReaderTest {
 
     @Test
     void testReadDataStoresCorrectNumberOfRecords() throws IOException{
-        dataReader.readData(dataStorage);
+        dataReader.startReading(dataStorage);
         List<PatientRecord> records = dataStorage.getRecords(1001,1714375999000L, 1714376121000L );
     assertEquals(3, records.size(), "Should store 3 records for patient 1001");
     }
@@ -50,7 +50,7 @@ public class DataReaderTest {
     @Test 
     /* testing the normal functionaity of this class */
     void testReadDataParsesCorrectValues() throws IOException {
-        dataReader.readData(dataStorage);
+        dataReader.startReading(dataStorage);
         List<PatientRecord> records = dataStorage.getRecords(1001, 1714375999000L, 1714376121000L);
         
         PatientRecord systolic = records.stream()
@@ -78,7 +78,7 @@ public class DataReaderTest {
         DataStorage testStorage = DataStorage.getInstance();
         testStorage.clearAllData();
         DataReader invalidReader = new FileDataReader(invalidFile.toString());
-        invalidReader.readData(testStorage);
+        invalidReader.startReading(testStorage);
         
         List<PatientRecord> records = testStorage.getRecords(1001, 0L, Long.MAX_VALUE);
         assertEquals(1, records.size(), "Only one valid record should be added");
@@ -92,20 +92,24 @@ public class DataReaderTest {
         DataStorage testStorage = DataStorage.getInstance();
         testStorage.clearAllData();
         DataReader emptyReader = new FileDataReader(emptyFile.toString());
-        emptyReader.readData(testStorage);
+        emptyReader.startReading(testStorage);
         
         List<PatientRecord> records = testStorage.getRecords(1001, 0L, Long.MAX_VALUE);
         assertEquals(0, records.size(), "No records should be added from empty file");
     }
     
     @Test
-    void testReadDataWithNonExistentFile() {
-        DataReader nonExistentReader = new FileDataReader("nonexistent.txt");
-        
-        assertThrows(IOException.class, () -> {
-            nonExistentReader.readData(dataStorage);
-        }, "Should throw IOException for non-existent file");
-    }
+void testReadDataWithNonExistentFile() {
+    DataReader nonExistentReader = new FileDataReader("nonexistent.txt");
+    DataStorage testStorage = DataStorage.getInstance();
+    testStorage.clearAllData();
     
+    // Should not throw exception, but should log error and continue gracefully
+    nonExistentReader.startReading(testStorage);
+    
+    // Verify no records were added
+    List<PatientRecord> records = testStorage.getRecords(1001, 0L, Long.MAX_VALUE);
+    assertEquals(0, records.size(), "No records should be added from non-existent file");
+}
 
 }

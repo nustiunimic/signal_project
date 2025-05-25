@@ -7,12 +7,16 @@ import java.net.InetSocketAddress;
 
 public class WebSocketOutputStrategy implements OutputStrategy {
 
-    private WebSocketServer server;
+    private final WebSocketServer server;
 
     public WebSocketOutputStrategy(int port) {
-        server = new SimpleWebSocketServer(new InetSocketAddress(port));
+        this.server = createServer(port);
         System.out.println("WebSocket server created on port: " + port + ", listening for connections...");
-        server.start();
+        this.server.start();
+    }
+
+    protected WebSocketServer createServer(int port){
+        return new SimpleWebSocketServer(new InetSocketAddress(port));
     }
 
     @Override
@@ -20,7 +24,12 @@ public class WebSocketOutputStrategy implements OutputStrategy {
         String message = String.format("%d,%d,%s,%s", patientId, timestamp, label, data);
         // Broadcast the message to all connected clients
         for (WebSocket conn : server.getConnections()) {
-            conn.send(message);
+            try{
+                conn.send(message);
+            } catch (Exception e){
+                System.err.println("Error sending message to" + conn.getRemoteSocketAddress() + ":" + e.getMessage());
+            }
+            
         }
     }
 

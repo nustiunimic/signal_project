@@ -12,7 +12,7 @@ public class FileDataReader implements DataReader {
     }
 
     @Override
-    public void readData(DataStorage dataStorage)throws IOException{
+    public void startReading(DataStorage dataStorage){
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))){
             String line;
 
@@ -29,6 +29,11 @@ public class FileDataReader implements DataReader {
                 dataStorage.addPatientData(patientId, value, type, timestamp);
 
             }
+        
+        }
+        catch (IOException e){
+            System.err.println("Error reading file :" + e.getMessage());
+            e.printStackTrace();
         }
     }
 }
