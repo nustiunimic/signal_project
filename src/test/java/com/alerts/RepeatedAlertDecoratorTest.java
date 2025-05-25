@@ -1,9 +1,6 @@
 package com.alerts;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import com.alerts.AlertInterface;
-import com.alerts.RepeatedAlertDecorator;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class RepeatedAlertDecoratorTest {
