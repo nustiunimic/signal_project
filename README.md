@@ -76,7 +76,7 @@ The following subsystems are modeled:
 
 You can find all the UML diagrams along with their design explanations in the file:[ UMLDiagrams.pdf](./src/main/uml%20diagrams/UMLDiagrams.pdf)
 
-
+Note:The colleague Octavian had issues with vscode and maybe changed the nickname for when he is pushing on GitHub, from Octavian to ciulik(Ciulei Ionut Octavian), so it is the same user, just a different nickname.
 
 ## Project Members
 -Student ID : 6395305
